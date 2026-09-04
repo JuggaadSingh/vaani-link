@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Vaani-Link</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            font-family:
+                Arial,
+                sans-serif;
+
+            background:
+                #f4f6f8;
+
+            min-height:
+                100vh;
+
+            display:
+                flex;
+
+            justify-content:
+                center;
+
+            align-items:
+                center;
+
+            padding:
+                20px;
+
+        }
+
+
+        .container {
+
+            width:
+                100%;
+
+            max-width:
+                520px;
+
+            background:
+                white;
+
+            border-radius:
+                20px;
+
+            padding:
+                28px;
+
+            box-shadow:
+                0 5px 25px
+                rgba(0,0,0,0.12);
+
+        }
+
+
+        h1 {
+
+            text-align:
+                center;
+
+            margin:
+                0 0 8px;
+
+        }
+
+
+        .subtitle {
+
+            text-align:
+                center;
+
+            color:
+                #555;
+
+            margin-bottom:
+                25px;
+
+        }
+
+
+        .section-title {
+
+            font-weight:
+                bold;
+
+            margin-top:
+                22px;
+
+            margin-bottom:
+                10px;
+
+            font-size:
+                17px;
+
+        }
+
+
+        select {
+
+            width:
+                100%;
+
+            padding:
+                13px;
+
+            font-size:
+                16px;
+
+            border-radius:
+                10px;
+
+            border:
+                1px solid #ccc;
+
+        }
+
+
+        button {
+
+            width:
+                100%;
+
+            border:
+                none;
+
+            padding:
+                15px;
+
+            margin-top:
+                10px;
+
+            border-radius:
+                12px;
+
+            font-size:
+                16px;
+
+            cursor:
+                pointer;
+
+        }
+
+
+        button:disabled {
+
+            opacity:
+                0.5;
+
+            cursor:
+                not-allowed;
+
+        }
+
+
+        #connectBtn {
+
+            background:
+                #1976d2;
+
+            color:
+                white;
+
+        }
+
+
+        #recordBtn {
+
+            background:
+                #e53935;
+
+            color:
+                white;
+
+        }
+
+
+        #stopBtn {
+
+            background:
+                #424242;
+
+            color:
+                white;
+
+        }
+
+
+        #sendBtn {
+
+            background:
+                #7b1fa2;
+
+            color:
+                white;
+
+        }
+
+
+        #speakBtn {
+
+            background:
+                #2e7d32;
+
+            color:
+                white;
+
+        }
+
+
+        #emergencyBtn {
+
+            background:
+                #d50000;
+
+            color:
+                white;
+
+            font-size:
+                18px;
+
+            font-weight:
+                bold;
+
+            padding:
+                18px;
+
+        }
+
+
+        .device {
+
+            background:
+                #f1f5f9;
+
+            padding:
+                15px;
+
+            border-radius:
+                12px;
+
+        }
+
+
+        .box {
+
+            background:
+                #f5f5f5;
+
+            padding:
+                15px;
+
+            border-radius:
+                12px;
+
+            min-height:
+                70px;
+
+            word-wrap:
+                break-word;
+
+            white-space:
+                pre-wrap;
+
+        }
+
+
+        #status {
+
+            text-align:
+                center;
+
+            margin:
+                18px 0;
+
+            font-weight:
+                bold;
+
+        }
+
+
+        .info {
+
+            text-align:
+                center;
+
+            font-size:
+                13px;
+
+            color:
+                #666;
+
+            margin-top:
+                8px;
+
+        }
+
+
+        .connected {
+
+            color:
+                #2e7d32;
+
+            font-weight:
+                bold;
+
+        }
+
+
+        .emergency-message {
+
+            border:
+                2px solid #d50000;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- TITLE -->
+
+    <h1>
+        🎙️ Vaani-Link
+    </h1>
+
+
+    <div class="subtitle">
+
+        Low-Bandwidth Emergency Communication
+
+    </div>
+
+
+
+    <!-- NETWORK -->
+
+    <div class="section-title">
+
+        📡 Vaani-Link Communication
+
+    </div>
+
+
+    <div class="device">
+
+        Open Vaani-Link in another
+        browser tab to simulate
+        another connected device.
+
+    </div>
+
+
+    <button id="connectBtn">
+
+        📡 Connect to Vaani-Link
+
+    </button>
+
+
+
+    <!-- LANGUAGE -->
+
+    <div class="section-title">
+
+        🗣 I am speaking
+
+    </div>
+
+
+    <select id="language">
+
+        <option value="hi">
+            Hindi
+        </option>
+
+        <option value="en">
+            English
+        </option>
+
+        <option value="pa">
+            Punjabi
+        </option>
+
+    </select>
+
+
+
+    <!-- EMERGENCY -->
+
+    <div class="section-title">
+
+        🚨 Emergency Communication
+
+    </div>
+
+
+    <button
+        id="emergencyBtn"
+        disabled
+    >
+
+        🚨 EMERGENCY BROADCAST
+
+    </button>
+
+
+    <div class="info">
+
+        Record and automatically broadcast
+        your emergency message.
+
+    </div>
+
+
+
+    <!-- NORMAL COMMUNICATION -->
+
+    <div class="section-title">
+
+        🎤 Normal Communication
+
+    </div>
+
+
+    <button
+        id="recordBtn"
+        disabled
+    >
+
+        🎤 Start Speaking
+
+    </button>
+
+
+    <button
+        id="stopBtn"
+        disabled
+    >
+
+        ⏹ Stop & Process
+
+    </button>
+
+
+
+    <!-- STATUS -->
+
+    <div id="status">
+
+        🔴 Communication channel disconnected
+
+    </div>
+
+
+
+    <!-- MY MESSAGE -->
+
+    <div class="section-title">
+
+        📝 My Message
+
+    </div>
+
+
+    <div
+        id="result"
+        class="box"
+    >
+
+        Your speech will appear here...
+
+    </div>
+
+
+    <button
+        id="sendBtn"
+        disabled
+    >
+
+        📤 Send Message
+
+    </button>
+
+
+    <button
+        id="speakBtn"
+        disabled
+    >
+
+        🔊 Hear My Message
+
+    </button>
+
+
+
+    <!-- RECEIVED MESSAGE -->
+
+    <div class="section-title">
+
+        📩 Incoming Message
+
+    </div>
+
+
+    <div
+        id="received"
+        class="box"
+    >
+
+        Waiting for messages...
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+
+/* =========================================
+   CONFIGURATION
+========================================= */
+
+
+const HOST =
+    window.location.hostname ||
+    "127.0.0.1";
+
+
+const API_URL =
+    `http://${HOST}:8000`;
+
+
+/*
+   Local browser communication channel
+
+   All Vaani-Link tabs on the same origin
+   can communicate through this channel.
+*/
+
+const CHANNEL_NAME =
+    "vaani-link-channel";
+
+
+const channel =
+    new BroadcastChannel(
+        CHANNEL_NAME
+    );
+
+
+
+/* =========================================
+   VARIABLES
+========================================= */
+
+
+let mediaRecorder =
+    null;
+
+
+let audioChunks =
+    [];
+
+
+let currentStream =
+    null;
+
+
+let isEmergency =
+    false;
+
+
+let isConnected =
+    false;
+
+
+
+/* =========================================
+   ELEMENTS
+========================================= */
+
+
+const connectBtn =
+    document.getElementById(
+        "connectBtn"
+    );
+
+
+const recordBtn =
+    document.getElementById(
+        "recordBtn"
+    );
+
+
+const stopBtn =
+    document.getElementById(
+        "stopBtn"
+    );
+
+
+const emergencyBtn =
+    document.getElementById(
+        "emergencyBtn"
+    );
+
+
+const sendBtn =
+    document.getElementById(
+        "sendBtn"
+    );
+
+
+const speakBtn =
+    document.getElementById(
+        "speakBtn"
+    );
+
+
+const language =
+    document.getElementById(
+        "language"
+    );
+
+
+const status =
+    document.getElementById(
+        "status"
+    );
+
+
+const result =
+    document.getElementById(
+        "result"
+    );
+
+
+const received =
+    document.getElementById(
+        "received"
+    );
+
+
+
+/* =========================================
+   CONNECT
+========================================= */
+
+
+connectBtn.addEventListener(
+
+    "click",
+
+    function () {
+
+
+        isConnected =
+            true;
+
+
+        status.textContent =
+            "🟢 Connected to Vaani-Link channel";
+
+
+        connectBtn.disabled =
+            true;
+
+
+        recordBtn.disabled =
+            false;
+
+
+        emergencyBtn.disabled =
+            false;
+
+
+        console.log(
+            "Connected to BroadcastChannel:",
+            CHANNEL_NAME
+        );
+
+
+    }
+
+);
+
+
+
+/* =========================================
+   RECEIVE MESSAGE
+========================================= */
+
+
+channel.onmessage =
+    function (event) {
+
+
+        const data =
+            event.data;
+
+
+        console.log(
+            "Incoming message:",
+            data
+        );
+
+
+        if (
+            !data ||
+            !data.text
+        ) {
+
+            return;
+
+        }
+
+
+        received.textContent =
+            data.text;
+
+
+        /*
+           Emergency message
+        */
+
+        if (
+            data.emergency
+        ) {
+
+
+            received.classList.add(
+                "emergency-message"
+            );
+
+
+            status.textContent =
+                "🚨 EMERGENCY MESSAGE RECEIVED";
+
+
+        }
+
+
+        /*
+           Normal message
+        */
+
+        else {
+
+
+            received.classList.remove(
+                "emergency-message"
+            );
+
+
+            status.textContent =
+                "📩 New message received";
+
+
+        }
+
+
+        /*
+           Speak incoming message
+        */
+
+        speakText(
+
+            data.text,
+
+            data.language
+
+        );
+
+
+    };
+
+
+
+/* =========================================
+   NORMAL RECORDING
+========================================= */
+
+
+recordBtn.addEventListener(
+
+    "click",
+
+    function () {
+
+
+        isEmergency =
+            false;
+
+
+        startRecording();
+
+
+    }
+
+);
+
+
+
+/* =========================================
+   EMERGENCY RECORDING
+========================================= */
+
+
+emergencyBtn.addEventListener(
+
+    "click",
+
+    function () {
+
+
+        isEmergency =
+            true;
+
+
+        startRecording();
+
+
+    }
+
+);
+
+
+
+/* =========================================
+   START RECORDING
+========================================= */
+
+
+async function startRecording() {
+
+
+    if (
+        !isConnected
+    ) {
+
+
+        status.textContent =
+            "❌ Connect first";
+
+
+        return;
+
+    }
+
+
+    try {
+
+
+        currentStream =
+            await navigator
+                .mediaDevices
+                .getUserMedia({
+
+                    audio:
+                        true
+
+                });
+
+
+        mediaRecorder =
+            new MediaRecorder(
+                currentStream
+            );
+
+
+        audioChunks =
+            [];
+
+
+        /*
+           AUDIO DATA
+        */
+
+        mediaRecorder.ondataavailable =
+            function (event) {
+
+
+                if (
+                    event.data.size > 0
+                ) {
+
+
+                    audioChunks.push(
+                        event.data
+                    );
+
+
+                }
+
+
+            };
+
+
+
+        /*
+           RECORDING FINISHED
+        */
+
+        mediaRecorder.onstop =
+            async function () {
+
+
+                status.textContent =
+                    "⏳ Converting speech to text...";
+
+
+                const audioBlob =
+                    new Blob(
+
+                        audioChunks,
+
+                        {
+
+                            type:
+                                "audio/webm"
+
+                        }
+
+                    );
+
+
+                const formData =
+                    new FormData();
+
+
+                formData.append(
+
+                    "file",
+
+                    audioBlob,
+
+                    "recording.webm"
+
+                );
+
+
+                try {
+
+
+                    const response =
+                        await fetch(
+
+                            `${API_URL}/transcribe?language=${language.value}`,
+
+                            {
+
+                                method:
+                                    "POST",
+
+                                body:
+                                    formData
+
+                            }
+
+                        );
+
+
+                    /*
+                       Check backend response
+                    */
+
+                    if (
+                        !response.ok
+                    ) {
+
+
+                        throw new Error(
+
+                            `Backend error: ${response.status}`
+
+                        );
+
+
+                    }
+
+
+                    const data =
+                        await response.json();
+
+
+                    console.log(
+                        "STT result:",
+                        data
+                    );
+
+
+                    /*
+                       Get transcription safely
+                    */
+
+                    const transcription =
+                        data.transcription ||
+                        data.text ||
+                        "";
+
+
+                    if (
+                        transcription
+                    ) {
+
+
+                        result.textContent =
+                            transcription;
+
+
+                        sendBtn.disabled =
+                            false;
+
+
+                        speakBtn.disabled =
+                            false;
+
+
+                        status.textContent =
+                            "✅ Speech converted successfully";
+
+
+                        /*
+                           Automatically send
+                           emergency message
+                        */
+
+                        if (
+                            isEmergency
+                        ) {
+
+
+                            sendMessage(
+                                true
+                            );
+
+
+                        }
+
+
+                    }
+
+
+                    else {
+
+
+                        status.textContent =
+                            "❌ No speech detected";
+
+
+                    }
+
+
+                }
+
+
+                catch (error) {
+
+
+                    console.error(
+                        "Transcription error:",
+                        error
+                    );
+
+
+                    status.textContent =
+                        "❌ Cannot reach STT backend";
+
+
+                }
+
+
+                finally {
+
+
+                    isEmergency =
+                        false;
+
+
+                }
+
+
+            };
+
+
+
+        /*
+           START
+        */
+
+        mediaRecorder.start();
+
+
+        recordBtn.disabled =
+            true;
+
+
+        emergencyBtn.disabled =
+            true;
+
+
+        stopBtn.disabled =
+            false;
+
+
+        if (
+            isEmergency
+        ) {
+
+
+            status.textContent =
+                "🚨 EMERGENCY MODE — SPEAK NOW!";
+
+
+        }
+
+
+        else {
+
+
+            status.textContent =
+                "🎤 Listening...";
+
+
+        }
+
+
+    }
+
+
+    catch (error) {
+
+
+        console.error(
+            error
+        );
+
+
+        status.textContent =
+            "❌ Microphone permission denied";
+
+
+    }
+
+
+}
+
+
+
+/* =========================================
+   STOP RECORDING
+========================================= */
+
+
+stopBtn.addEventListener(
+
+    "click",
+
+    function () {
+
+
+        if (
+
+            mediaRecorder &&
+
+            mediaRecorder.state ===
+                "recording"
+
+        ) {
+
+
+            mediaRecorder.stop();
+
+
+        }
+
+
+        /*
+           Stop microphone
+        */
+
+        if (
+            currentStream
+        ) {
+
+
+            currentStream
+                .getTracks()
+                .forEach(
+
+                    function (track) {
+
+
+                        track.stop();
+
+
+                    }
+
+                );
+
+
+        }
+
+
+        stopBtn.disabled =
+            true;
+
+
+        recordBtn.disabled =
+            false;
+
+
+        emergencyBtn.disabled =
+            false;
+
+
+    }
+
+);
+
+
+
+/* =========================================
+   SEND MESSAGE BUTTON
+========================================= */
+
+
+sendBtn.addEventListener(
+
+    "click",
+
+    function () {
+
+
+        sendMessage(
+            false
+        );
+
+
+    }
+
+);
+
+
+
+/* =========================================
+   SEND MESSAGE
+========================================= */
+
+
+function sendMessage(
+    emergency
+) {
+
+
+    const text =
+        result.textContent.trim();
+
+
+    /*
+       Check text
+    */
+
+    if (
+
+        !text ||
+
+        text ===
+        "Your speech will appear here..."
+
+    ) {
+
+
+        status.textContent =
+            "❌ No message to send";
+
+
+        return;
+
+    }
+
+
+    /*
+       Create message
+    */
+
+    const message = {
+
+
+        text:
+            text,
+
+
+        language:
+            language.value,
+
+
+        emergency:
+            emergency,
+
+
+        timestamp:
+            new Date()
+                .toLocaleTimeString()
+
+
+    };
+
+
+    /*
+       Broadcast message
+    */
+
+    channel.postMessage(
+        message
+    );
+
+
+    console.log(
+        "Message broadcast:",
+        message
+    );
+
+
+    if (
+        emergency
+    ) {
+
+
+        status.textContent =
+            "🚨 EMERGENCY BROADCAST SENT";
+
+
+    }
+
+
+    else {
+
+
+        status.textContent =
+            "📤 Message sent successfully";
+
+
+    }
+
+
+}
+
+
+
+/* =========================================
+   SPEAK MY MESSAGE
+========================================= */
+
+
+speakBtn.addEventListener(
+
+    "click",
+
+    function () {
+
+
+        speakText(
+
+            result.textContent,
+
+            language.value
+
+        );
+
+
+    }
+
+);
+
+
+
+/* =========================================
+   TEXT TO SPEECH
+========================================= */
+
+
+function speakText(
+    text,
+    lang
+) {
+
+
+    if (
+
+        !text ||
+
+        text.trim() === ""
+
+    ) {
+
+
+        return;
+
+    }
+
+
+    const speech =
+        new SpeechSynthesisUtterance(
+            text
+        );
+
+
+    /*
+       Hindi
+    */
+
+    if (
+        lang === "hi"
+    ) {
+
+
+        speech.lang =
+            "hi-IN";
+
+
+    }
+
+
+    /*
+       English
+    */
+
+    else if (
+        lang === "en"
+    ) {
+
+
+        speech.lang =
+            "en-IN";
+
+
+    }
+
+
+    /*
+       Punjabi
+    */
+
+    else if (
+        lang === "pa"
+    ) {
+
+
+        speech.lang =
+            "pa-IN";
+
+
+    }
+
+
+    speech.rate =
+        0.9;
+
+
+    speech.pitch =
+        1;
+
+
+    /*
+       Stop previous speech
+    */
+
+    window
+        .speechSynthesis
+        .cancel();
+
+
+    /*
+       Speak
+    */
+
+    window
+        .speechSynthesis
+        .speak(
+            speech
+        );
+
+
+}
+
+
+
+/* =========================================
+   PAGE UNLOAD
+========================================= */
+
+
+window.addEventListener(
+
+    "beforeunload",
+
+    function () {
+
+
+        channel.close();
+
+
+    }
+
+);
+
+
+</script>
+
+
+</body>
+
+</html>
