@@ -43,8 +43,9 @@ print("Loading IndicConformer model...")
 
 model = AutoModel.from_pretrained(
     MODEL_NAME,
-    trust_remote_code=True
-);
+    trust_remote_code=True,
+    token=os.getenv("HF_TOKEN")
+)
   
 
 
