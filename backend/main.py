@@ -1,10 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
-from transformers import AutoModel
-
-import torch
-import soundfile as sf
+from faster_whisper import WhisperModel
 
 import subprocess
 import os
@@ -34,24 +31,16 @@ app.add_middleware(
 
 
 # ==========================================
-# LOAD STT MODEL
+# LOAD LIGHTWEIGHT STT MODEL
 # ==========================================
 
-MODEL_NAME = "ai4bharat/indic-conformer-600m-multilingual"
+print("Loading lightweight Whisper STT model...")
 
-print("Loading IndicConformer model...")
-
-model = AutoModel.from_pretrained(
-    MODEL_NAME,
-    trust_remote_code=True,
-    token=os.getenv("HF_TOKEN")
+model = WhisperModel(
+    "tiny",
+    device="cpu",
+    compute_type="int8"
 )
-  
-
-
-
-model.eval()
-
 
 print("STT model loaded successfully!")
 
@@ -69,7 +58,6 @@ rooms = {}
 
 @app.get("/")
 def home():
-
     return {
         "message": "Vaani-Link backend is running"
     }
@@ -81,7 +69,6 @@ def home():
 
 @app.get("/health")
 def health():
-
     return {
         "status": "healthy"
     }
@@ -91,66 +78,23 @@ def health():
 # TRANSCRIBE AUDIO FUNCTION
 # ==========================================
 
-def transcribe_audio(
-    audio_path,
-    language="hi"
-):
+def transcribe_audio(audio_path, language="hi"):
 
-    print("Loading audio...")
+    print("Transcribing audio...")
 
-
-    audio, sample_rate = sf.read(
-        audio_path
+    segments, info = model.transcribe(
+        audio_path,
+        language=language,
+        beam_size=1
     )
 
-
-    print(
-        f"Sample rate: {sample_rate}"
+    transcription = " ".join(
+        segment.text.strip()
+        for segment in segments
     )
 
-
-    print(
-        f"Audio shape: {audio.shape}"
-    )
-
-
-    # Convert audio to PyTorch tensor
-
-    wav = torch.tensor(
-        audio,
-        dtype=torch.float32
-    )
-
-
-    # Convert stereo to mono
-
-    if wav.ndim > 1:
-
-        wav = wav.mean(
-            dim=1
-        )
-
-
-    # Add batch dimension
-
-    wav = wav.unsqueeze(
-        0
-    )
-
-
-    print("Transcribing...")
-
-
-    # Speech to Text
-
-    with torch.no_grad():
-
-        transcription = model(
-            wav,
-            language,
-            "ctc"
-        )
-
+    print("Detected language:", info.language)
+    print("Transcription:", transcription)
 
     return transcription
 
@@ -165,22 +109,10 @@ async def transcribe(
     language: str = "hi"
 ):
 
-    # Generate unique filenames
+    unique_id = str(uuid.uuid4())
 
-    unique_id = str(
-        uuid.uuid4()
-    )
-
-
-    input_filename = (
-        f"temp_{unique_id}.webm"
-    )
-
-
-    output_filename = (
-        f"temp_{unique_id}.wav"
-    )
-
+    input_filename = f"temp_{unique_id}.webm"
+    output_filename = f"temp_{unique_id}.wav"
 
     try:
 
@@ -190,63 +122,34 @@ async def transcribe(
 
         contents = await file.read()
 
+        with open(input_filename, "wb") as audio_file:
+            audio_file.write(contents)
 
-        with open(
-            input_filename,
-            "wb"
-        ) as audio_file:
-
-            audio_file.write(
-                contents
-            )
-
-
-        print(
-            f"Saved audio: {input_filename}"
-        )
+        print(f"Saved audio: {input_filename}")
 
 
         # ----------------------------------
         # CONVERT WEBM TO WAV
         # ----------------------------------
 
-        print(
-            "Converting audio to WAV..."
-        )
-
+        print("Converting audio to WAV...")
 
         subprocess.run(
-
             [
-
                 "ffmpeg",
-
                 "-y",
-
                 "-i",
-
                 input_filename,
-
                 "-ar",
-
                 "16000",
-
                 "-ac",
-
                 "1",
-
                 output_filename
-
             ],
-
             check=True
-
         )
 
-
-        print(
-            "Audio converted successfully!"
-        )
+        print("Audio converted successfully!")
 
 
         # ----------------------------------
@@ -254,17 +157,8 @@ async def transcribe(
         # ----------------------------------
 
         transcription = transcribe_audio(
-
             output_filename,
-
             language
-
-        )
-
-
-        print(
-            "Transcription:",
-            transcription
         )
 
 
@@ -273,71 +167,42 @@ async def transcribe(
         # ----------------------------------
 
         return {
-
             "success": True,
-
-            "transcription":
-                transcription,
-
-            "language":
-                language
-
+            "transcription": transcription,
+            "language": language
         }
 
 
     except Exception as error:
 
-        print(
-            "TRANSCRIPTION ERROR:"
-        )
-
-
+        print("TRANSCRIPTION ERROR:")
         print(error)
 
-
         return {
-
             "success": False,
-
-            "error":
-                str(error)
-
+            "error": str(error)
         }
 
 
     finally:
 
         # ----------------------------------
-        # CLEAN UP TEMP FILES
+        # CLEAN UP
         # ----------------------------------
 
-        if os.path.exists(
-            input_filename
-        ):
+        if os.path.exists(input_filename):
 
             try:
-
-                os.remove(
-                    input_filename
-                )
-
+                os.remove(input_filename)
             except Exception:
-
                 pass
 
 
-        if os.path.exists(
-            output_filename
-        ):
+        if os.path.exists(output_filename):
 
             try:
-
-                os.remove(
-                    output_filename
-                )
-
+                os.remove(output_filename)
             except Exception:
-
                 pass
 
 
@@ -345,129 +210,83 @@ async def transcribe(
 # WEBSOCKET COMMUNICATION
 # ==========================================
 
-@app.websocket(
-    "/ws/{room_id}"
-)
+@app.websocket("/ws/{room_id}")
 async def websocket_endpoint(
-
     websocket: WebSocket,
-
     room_id: str
-
 ):
-
-    # Accept connection
 
     await websocket.accept()
 
-
-    # Create room if it doesn't exist
-
     if room_id not in rooms:
-
         rooms[room_id] = []
 
-
-    # Add device to room
-
-    rooms[room_id].append(
-        websocket
-    )
-
+    rooms[room_id].append(websocket)
 
     print(
         f"🟢 Device connected to room: {room_id}"
     )
 
-
     print(
         f"Devices in room: {len(rooms[room_id])}"
     )
-
 
     try:
 
         while True:
 
-
-            # Receive message
-
             data = await websocket.receive_text()
-
 
             print(
                 f"📩 Message received in {room_id}:"
             )
 
-
-            print(
-                data
-            )
+            print(data)
 
 
-            # Broadcast message to
-            # OTHER devices in same room
+            # ----------------------------------
+            # BROADCAST TO OTHER DEVICES
+            # ----------------------------------
 
             disconnected_clients = []
 
-
             for client in rooms[room_id]:
 
-
-                # Don't send message back
-                # to sender
-
                 if client == websocket:
-
                     continue
-
 
                 try:
 
-                    await client.send_text(
-                        data
-                    )
-
+                    await client.send_text(data)
 
                 except Exception:
 
-                    disconnected_clients.append(
-                        client
-                    )
+                    disconnected_clients.append(client)
 
 
-            # Remove disconnected devices
+            # ----------------------------------
+            # REMOVE DISCONNECTED CLIENTS
+            # ----------------------------------
 
             for client in disconnected_clients:
 
                 if client in rooms[room_id]:
-
-                    rooms[room_id].remove(
-                        client
-                    )
+                    rooms[room_id].remove(client)
 
 
     except WebSocketDisconnect:
 
-
         print(
             f"🔴 Device disconnected from room: {room_id}"
         )
-
-
-        # Remove device
 
         if (
             room_id in rooms
             and websocket in rooms[room_id]
         ):
 
-            rooms[room_id].remove(
-                websocket
-            )
+            rooms[room_id].remove(websocket)
 
-
-        # Delete empty room
 
         if (
             room_id in rooms
@@ -479,29 +298,12 @@ async def websocket_endpoint(
 
     except Exception as error:
 
-
-        print(
-            "WEBSOCKET ERROR:"
-        )
-
-
-        print(
-            error
-        )
-
-
-        # Remove problematic connection
+        print("WEBSOCKET ERROR:")
+        print(error)
 
         if (
             room_id in rooms
             and websocket in rooms[room_id]
         ):
 
-            rooms[room_id].remove(
-                websocket
-            )
-
-
-# ==========================================
-# END
-# ==========================================
+            rooms[room_id].remove(websocket)

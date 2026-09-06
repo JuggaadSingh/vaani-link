@@ -1,5 +1,4 @@
 fastapi
 uvicorn[standard]
-transformers
-torch
-soundfile
+python-multipart
+faster-whisper
